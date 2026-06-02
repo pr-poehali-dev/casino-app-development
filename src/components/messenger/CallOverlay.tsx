@@ -1,22 +1,14 @@
 import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
-import { Chat } from "@/pages/Index";
+import { RealChat } from "@/lib/api";
 
 interface CallOverlayProps {
-  chat: Chat;
+  chat: RealChat;
   type: "voice" | "video";
   onEnd: () => void;
 }
 
-const avatarGradients: Record<number, string> = {
-  1: "from-violet-500 to-purple-600",
-  2: "from-cyan-500 to-blue-600",
-  3: "from-pink-500 to-rose-600",
-  4: "from-emerald-500 to-teal-600",
-  5: "from-orange-500 to-amber-600",
-  6: "from-indigo-500 to-violet-600",
-  7: "from-fuchsia-500 to-pink-600",
-};
+const GRADIENTS = ["from-violet-500 to-purple-600","from-cyan-500 to-blue-600","from-pink-500 to-rose-600","from-emerald-500 to-teal-600","from-orange-500 to-amber-600","from-indigo-500 to-violet-600","from-fuchsia-500 to-pink-600"];
 
 export default function CallOverlay({ chat, type, onEnd }: CallOverlayProps) {
   const [duration, setDuration] = useState(0);
@@ -25,7 +17,7 @@ export default function CallOverlay({ chat, type, onEnd }: CallOverlayProps) {
   const [videoOff, setVideoOff] = useState(false);
   const [status, setStatus] = useState<"calling" | "connected">("calling");
 
-  const gradient = avatarGradients[chat.id] || "from-violet-500 to-cyan-500";
+  const gradient = GRADIENTS[chat.id % GRADIENTS.length];
 
   useEffect(() => {
     const connectTimer = setTimeout(() => setStatus("connected"), 2500);
@@ -68,7 +60,7 @@ export default function CallOverlay({ chat, type, onEnd }: CallOverlayProps) {
             </>
           )}
           <div className={`w-28 h-28 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center relative z-10 shadow-2xl`}>
-            <span className="text-white text-3xl font-bold">{chat.avatar}</span>
+            <span className="text-white text-3xl font-bold">{chat.avatar_text}</span>
           </div>
         </div>
 

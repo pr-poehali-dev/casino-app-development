@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "list_chats without token",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list_chats"},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "find_users without token",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "find_users", "query": "test"},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    }
+  ]
+}
