@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/messenger/Sidebar";
 import ChatWindow from "@/components/messenger/ChatWindow";
 import StoriesBar from "@/components/messenger/StoriesBar";
 import ProfilePanel from "@/components/messenger/ProfilePanel";
 import CallOverlay from "@/components/messenger/CallOverlay";
 import StoryViewer from "@/components/messenger/StoryViewer";
+import AuthScreen from "@/components/messenger/AuthScreen";
+import { loadSession, clearSession, apiLogout, AuthUser } from "@/lib/api";
 
 export type View = "chats" | "contacts" | "profile" | "settings";
 export type Chat = {
@@ -60,6 +62,31 @@ const MESSAGES_MAP: Record<number, Message[]> = {
 };
 
 export default function Index() {
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [authToken, setAuthToken] = useState<string>("");
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    const session = loadSession();
+    if (session) {
+      setAuthUser(session.user);
+      setAuthToken(session.token);
+    }
+    setAuthChecked(true);
+  }, []);
+
+  const handleAuth = (user: AuthUser, token: string) => {
+    setAuthUser(user);
+    setAuthToken(token);
+  };
+
+  const handleLogout = async () => {
+    await apiLogout(authToken);
+    clearSession();
+    setAuthUser(null);
+    setAuthToken("");
+  };
+
   const [activeChat, setActiveChat] = useState<Chat | null>(CHATS[0]);
   const [view, setView] = useState<View>("chats");
   const [showProfile, setShowProfile] = useState(false);
@@ -67,6 +94,9 @@ export default function Index() {
   const [activeStory, setActiveStory] = useState<number | null>(null);
   const [messages, setMessages] = useState<Record<number, Message[]>>(MESSAGES_MAP);
   const [searchQuery, setSearchQuery] = useState("");
+
+  if (!authChecked) return null;
+  if (!authUser) return <AuthScreen onAuth={handleAuth} />;
 
   const handleSendMessage = (text: string) => {
     if (!activeChat) return;
@@ -99,6 +129,8 @@ export default function Index() {
         onSelectChat={(chat) => { setActiveChat(chat); setShowProfile(false); }}
         onViewChange={setView}
         onOpenProfile={() => setShowProfile(true)}
+        currentUser={authUser}
+        onLogout={handleLogout}
       />
 
       <div className="flex flex-col flex-1 min-w-0">

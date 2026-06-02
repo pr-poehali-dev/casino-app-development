@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
 import { Chat, View } from "@/pages/Index";
+import { AuthUser } from "@/lib/api";
 
 interface SidebarProps {
   chats: Chat[];
@@ -11,6 +12,8 @@ interface SidebarProps {
   onSelectChat: (chat: Chat) => void;
   onViewChange: (v: View) => void;
   onOpenProfile: () => void;
+  currentUser: AuthUser | null;
+  onLogout: () => void;
 }
 
 const avatarGradients = [
@@ -26,6 +29,7 @@ const avatarGradients = [
 export default function Sidebar({
   chats, activeChat, view, searchQuery,
   onSearchChange, onSelectChat, onViewChange, onOpenProfile,
+  currentUser, onLogout,
 }: SidebarProps) {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
@@ -151,13 +155,17 @@ export default function Sidebar({
       <div className="p-3 flex items-center justify-between" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <button
           onClick={onOpenProfile}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/5 transition-all"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/5 transition-all min-w-0"
         >
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center">
-            <span className="text-white text-[10px] font-bold">ВЫ</span>
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-[10px] font-bold">
+              {currentUser?.avatar_text || "ВЫ"}
+            </span>
           </div>
-          <div className="text-left">
-            <p className="text-white text-xs font-medium">Мой профиль</p>
+          <div className="text-left min-w-0">
+            <p className="text-white text-xs font-medium truncate max-w-[120px]">
+              {currentUser?.username || "Мой профиль"}
+            </p>
             <p className="text-emerald-400 text-[10px]">● онлайн</p>
           </div>
         </button>
@@ -165,8 +173,12 @@ export default function Sidebar({
           <button className="w-8 h-8 rounded-xl hover:bg-white/5 transition-all flex items-center justify-center">
             <Icon name="Bell" size={15} className="text-white/40" />
           </button>
-          <button className="w-8 h-8 rounded-xl hover:bg-white/5 transition-all flex items-center justify-center">
-            <Icon name="Settings" size={15} className="text-white/40" />
+          <button
+            onClick={onLogout}
+            title="Выйти"
+            className="w-8 h-8 rounded-xl hover:bg-red-500/10 transition-all flex items-center justify-center group"
+          >
+            <Icon name="LogOut" size={15} className="text-white/40 group-hover:text-red-400 transition-colors" />
           </button>
         </div>
       </div>
